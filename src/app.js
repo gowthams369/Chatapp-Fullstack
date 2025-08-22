@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { authRouter } from "./routes/authRoute.js";
+import { messageRouter } from "./routes/messageRoute.js";
 
 const app = express();
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api", authRouter);
+app.use("/api", messageRouter);
 
 app.get("/", (req, res) => {
   console.log("App is running");
