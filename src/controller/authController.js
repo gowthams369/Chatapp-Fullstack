@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import cloudinary from "../lib/cloudinary.js";
 
 const prisma = new PrismaClient();
 
@@ -72,4 +73,34 @@ export const logout = async (req, res) => {
     expires: new Date(Date.now()),
   });
   res.status(200).json("User logout sucessfully");
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilePic } = req.body;
+    const userId = req.user.id;
+    if (!profilePic) {
+      res.status(400).json({ message: "Profile pic is missing" });
+    }
+    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    const updateUser = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: { profilePic: uploadResponse.secure_url },
+    });
+    res.status(200).json(updateUser);
+  } catch (error) {
+    console.log("Erroor updating", error);
+    res.status(500).json("Internal Server error");
+  }
+};
+
+export const checkAuth = (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json("internal server error ");
+  }
 };
